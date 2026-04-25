@@ -1,0 +1,332 @@
+{
+  "dataset_rows_public": 121,
+  "dataset_fields": [
+    "id",
+    "prompt",
+    "insecure_code",
+    "cwe",
+    "source_raw",
+    "source",
+    "category",
+    "num_tokens",
+    "num_lines"
+  ],
+  "duplicates_by_id": 0,
+  "missing_prompt": 0,
+  "missing_code": 0,
+  "category_counts": {
+    "sql_injection": 6,
+    "hardcoded_secret": 6,
+    "weak_crypto": 7,
+    "other_vuln": 102
+  },
+  "category_shares": {
+    "sql_injection": 4.96,
+    "hardcoded_secret": 4.96,
+    "weak_crypto": 5.79,
+    "other_vuln": 84.3
+  },
+  "source_counts": {
+    "Author-created": 43,
+    "CodeQL": 34,
+    "SonarRules": 29,
+    "CWE list": 11,
+    "Pearce": 4
+  },
+  "top_cwes": {
+    "CWE-020": 6,
+    "CWE-611": 6,
+    "CWE-601": 5,
+    "CWE-022": 4,
+    "CWE-327": 4,
+    "CWE-502": 4,
+    "CWE-703": 3,
+    "CWE-079": 3,
+    "CWE-730": 3,
+    "CWE-347": 3,
+    "CWE-094": 3,
+    "CWE-295": 3,
+    "CWE-117": 3,
+    "CWE-522": 2,
+    "CWE-078": 2
+  },
+  "feature_stats": {
+    "hardcoded_secret": {
+      "num_tokens": {
+        "mean": 35.0,
+        "median": 33.5,
+        "min": 16.0,
+        "max": 61.0
+      },
+      "num_lines": {
+        "mean": 12.67,
+        "median": 10.5,
+        "min": 7.0,
+        "max": 21.0
+      }
+    },
+    "other_vuln": {
+      "num_tokens": {
+        "mean": 42.29,
+        "median": 37.0,
+        "min": 11.0,
+        "max": 129.0
+      },
+      "num_lines": {
+        "mean": 13.97,
+        "median": 13.0,
+        "min": 4.0,
+        "max": 46.0
+      }
+    },
+    "sql_injection": {
+      "num_tokens": {
+        "mean": 62.33,
+        "median": 63.0,
+        "min": 43.0,
+        "max": 72.0
+      },
+      "num_lines": {
+        "mean": 19.0,
+        "median": 18.0,
+        "min": 16.0,
+        "max": 23.0
+      }
+    },
+    "weak_crypto": {
+      "num_tokens": {
+        "mean": 29.29,
+        "median": 26.0,
+        "min": 21.0,
+        "max": 52.0
+      },
+      "num_lines": {
+        "mean": 10.29,
+        "median": 9.0,
+        "min": 7.0,
+        "max": 17.0
+      }
+    }
+  },
+  "baseline_summary": [
+    {
+      "model": "Logistic Regression",
+      "accuracy": 0.7517,
+      "macro_precision": 0.4174,
+      "macro_recall": 0.5732,
+      "macro_f1": 0.4445,
+      "roc_auc_ovr": 0.7613
+    },
+    {
+      "model": "Random Forest",
+      "accuracy": 0.893,
+      "macro_precision": 0.5223,
+      "macro_recall": 0.5,
+      "macro_f1": 0.5019,
+      "roc_auc_ovr": 0.8804
+    },
+    {
+      "model": "SVM (RBF)",
+      "accuracy": 0.2973,
+      "macro_precision": 0.3074,
+      "macro_recall": 0.4608,
+      "macro_f1": 0.2095,
+      "roc_auc_ovr": 0.6102
+    },
+    {
+      "model": "Gradient Boosting",
+      "accuracy": 0.8267,
+      "macro_precision": 0.445,
+      "macro_recall": 0.4304,
+      "macro_f1": 0.4248,
+      "roc_auc_ovr": 0.8539
+    }
+  ],
+  "best_baseline": {
+    "model": "Random Forest",
+    "macro_f1": 0.5018966705772792,
+    "accuracy": 0.893,
+    "macro_precision": 0.5223018539431583,
+    "macro_recall": 0.5,
+    "roc_auc_ovr": 0.8804125883763116
+  },
+  "best_baseline_confusion_matrix": [
+    [
+      0.3333333333333333,
+      0.6666666666666666,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      1.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.5,
+      0.5,
+      0.0
+    ],
+    [
+      0.0,
+      0.8571428571428571,
+      0.0,
+      0.14285714285714285
+    ]
+  ],
+  "inventory": {
+    "notebooks": [
+      "notebooks/lab2_eda_notebook.ipynb",
+      "notebooks/lab3_benchmark_notebook.ipynb"
+    ],
+    "markdown_files": [
+      "docs/labs/lab1/architecture-diagram.md",
+      "docs/labs/lab1/project-plan.md",
+      "docs/labs/lab2/eda-report.md",
+      "docs/labs/lab3/benchmark-report.md",
+      "docs/labs/lab4/product-documentation.md",
+      "README.md",
+      "research_package/mini_article.md",
+      "research_package/presentation_brief.md",
+      "research_package/presentation_outline.md",
+      "research_package/README.md",
+      "research_package/references.md"
+    ],
+    "datasets": [],
+    "generated_graphs_images": [],
+    "source_code_files": [
+      "demo/landing-page.html",
+      "index.html",
+      "notebooks/lab2_eda_notebook.py",
+      "notebooks/lab3_benchmark_notebook.py",
+      "src/SecureGenAIDemo.jsx"
+    ],
+    "experiment_outputs": [
+      "docs/labs/lab2/eda-report.md",
+      "docs/labs/lab3/benchmark-report.md",
+      "notebooks/lab3_benchmark_notebook.ipynb",
+      "notebooks/lab3_benchmark_notebook.py"
+    ],
+    "references": [
+      "research_package/references.md"
+    ],
+    "all_files": [
+      ".git/COMMIT_EDITMSG",
+      ".git/config",
+      ".git/description",
+      ".git/FETCH_HEAD",
+      ".git/HEAD",
+      ".git/hooks/applypatch-msg.sample",
+      ".git/hooks/commit-msg.sample",
+      ".git/hooks/fsmonitor-watchman.sample",
+      ".git/hooks/post-update.sample",
+      ".git/hooks/pre-applypatch.sample",
+      ".git/hooks/pre-commit.sample",
+      ".git/hooks/pre-merge-commit.sample",
+      ".git/hooks/pre-push.sample",
+      ".git/hooks/pre-rebase.sample",
+      ".git/hooks/pre-receive.sample",
+      ".git/hooks/prepare-commit-msg.sample",
+      ".git/hooks/push-to-checkout.sample",
+      ".git/hooks/update.sample",
+      ".git/index",
+      ".git/info/exclude",
+      ".git/logs/HEAD",
+      ".git/logs/refs/heads/main",
+      ".git/logs/refs/remotes/origin/main",
+      ".git/objects/00/cad416fb14932812cc1b024011388a408be074",
+      ".git/objects/0b/2c48208fc76858946350e6f7bb32c9b967a2f0",
+      ".git/objects/0d/4a6ae98dfdd250a286b6788ce8723dbf069ebf",
+      ".git/objects/1c/f8e0bafd47a08a46bd248fa210c6391c3280b5",
+      ".git/objects/1d/8a91d9da0aa490a652ab98adfd3a9e28a750e2",
+      ".git/objects/20/a4b2482eff35939999c17343174d65c0378579",
+      ".git/objects/24/4d9ade6154afd2b0bfa29aacaa3b660feabcc5",
+      ".git/objects/28/d471a92ba3be1f03fc8b07dce565ffa7df764d",
+      ".git/objects/28/e3728651b19b55085ece9eabefa40efed550b1",
+      ".git/objects/2d/b20ed5744f82fd6dd0d09ddbd289a4af642463",
+      ".git/objects/2f/efaf59858ad41ada08ea157532b5063d3039d1",
+      ".git/objects/30/12e219d75f0061ea88a7b16dd3f1233d10b7b6",
+      ".git/objects/32/2db9ca4b63f1e05d13206ab4d78253738276bf",
+      ".git/objects/34/7fadbfb33a0f5d328ac059ce0bcb269c5e5a68",
+      ".git/objects/36/44c4c229df2754f5cae4c8cb198c72a0f22e55",
+      ".git/objects/38/93a90d5a178917a8cbb1030ac6d5ff8a3089ab",
+      ".git/objects/3f/07e80307cf2c5d887e870059565f37c6e7bba9",
+      ".git/objects/3f/dfe9dfcb626694b908ad156f20d0e6dcd4b163",
+      ".git/objects/40/4ab3bc815045325a502e04bbd146dc487548ec",
+      ".git/objects/48/06b94c3cfe11acfc55e8fc3362132a8792c05a",
+      ".git/objects/4c/a0e49be38858e2b07a2bb81fabc459266f0575",
+      ".git/objects/50/93903b6da994c03b92238c3eeb69fc9adaad39",
+      ".git/objects/5a/4f2a870ddc998a7f05af23a3fabb315d4014a8",
+      ".git/objects/62/14f9a050e417e2c5291f3ea2cae4b04385ac2a",
+      ".git/objects/63/6381304363c1a389941177e5714ea0bc347d15",
+      ".git/objects/67/97b3c9b21ff6b38246f3947ac8dc350c3b973d",
+      ".git/objects/6d/481b9b0e9138ad7a6c8473fbf184528e5c4798",
+      ".git/objects/77/67e809ffd44556f2d2c0cf9e534d621aebab09",
+      ".git/objects/7b/43a343a84ce836ab38c3918751a4e9e2e12cc5",
+      ".git/objects/7e/55de5e6d71a387278709d40fd9c2d353a03b78",
+      ".git/objects/84/50634b4fbe0af99b863866e3707494a54f00ce",
+      ".git/objects/87/d2c32e4de63f5aa368e23ac6091b57b28c25a0",
+      ".git/objects/8c/7a26b2f5b0f8c1d00e94ca9f33e0cca7ffc654",
+      ".git/objects/8d/b889f9bc1cf6bec19c6d928c39c606cd1b0086",
+      ".git/objects/8f/b29e055ce4dcab286a551894a6e8f82171e71c",
+      ".git/objects/90/f61fcf2b767b1bb9c26f869e461596c56636d7",
+      ".git/objects/9a/4bccf14e846bf7ebaf49d0e2169546983b00ea",
+      ".git/objects/9c/baad3eb108ce9ebc60171c1f681ca8a0ee40ff",
+      ".git/objects/9e/478c02526a898f3f26c71ce92d415532c97355",
+      ".git/objects/a8/113ebfe6e55688b310aeeb7b04746049e7a569",
+      ".git/objects/a8/88be3459604b217ada898967076451032c41bb",
+      ".git/objects/ae/f1bdc5a44f6938a33a7fa81eb77b5293c61632",
+      ".git/objects/b7/faf403d915ca307532bb0eb9cceaf0214e8e5b",
+      ".git/objects/bb/ea6d7fe165b31f0f7f6cfeb31e3a384f6e134f",
+      ".git/objects/c1/f42b3a23fc5e47ba8c55c10289f6749d226221",
+      ".git/objects/cd/81ec7cc0277b63f66448fa54f84c5499b91f43",
+      ".git/objects/ce/8e01306accf7196ff0cd58d02ab95257c33ff9",
+      ".git/objects/d7/37308f0b5a7216a7d1d4adeef37d41a405272f",
+      ".git/objects/d8/91468fc2dcb32552d45cb190556567bc475eb0",
+      ".git/objects/e5/8aeba16e4eb1b9df00656a1e5062b91413bb46",
+      ".git/objects/ef/37bd7f4ab2627b85613f39c5e37b7ebb907915",
+      ".git/objects/f3/b48f3ae6542cf75bdf794fbca110f27adf74d0",
+      ".git/objects/f6/e0cb22257980a3210c27e2b6ab657a82fa579e",
+      ".git/objects/fd/9ac888495654f654d16b6179a42ace3e7d3c5f",
+      ".git/objects/ff/6244585a0cc3164b7e7123cbbb26e934dac2a3",
+      ".git/ORIG_HEAD",
+      ".git/refs/heads/main",
+      ".git/refs/remotes/origin/main",
+      ".gitignore",
+      "__pycache__/lab2_eda_notebook.cpython-312.pyc",
+      "__pycache__/lab3_benchmark_notebook.cpython-312.pyc",
+      "demo/landing-page.html",
+      "docs/labs/lab1/architecture-diagram.md",
+      "docs/labs/lab1/project-plan.md",
+      "docs/labs/lab1/SecureGen_Plan_Report.docx",
+      "docs/labs/lab2/eda-report.md",
+      "docs/labs/lab3/benchmark-report.md",
+      "docs/labs/lab4/product-documentation.md",
+      "index.html",
+      "LICENSE",
+      "notebooks/lab2_eda_notebook.ipynb",
+      "notebooks/lab2_eda_notebook.py",
+      "notebooks/lab3_benchmark_notebook.ipynb",
+      "notebooks/lab3_benchmark_notebook.py",
+      "README.md",
+      "research_package/__pycache__/build_article_artifacts.cpython-314.pyc",
+      "research_package/mini_article.md",
+      "research_package/presentation_brief.md",
+      "research_package/presentation_outline.md",
+      "research_package/README.md",
+      "research_package/references.md",
+      "src/SecureGenAIDemo.jsx"
+    ]
+  },
+  "figures": {
+    "category": "research_package/generated_outputs/figures/figure_1_category_distribution.png",
+    "top_cwe": "research_package/generated_outputs/figures/figure_2_top_cwes.png",
+    "source": "research_package/generated_outputs/figures/figure_3_source_distribution.png",
+    "tokens": "research_package/generated_outputs/figures/figure_4_token_length_boxplot.png",
+    "baseline": "research_package/generated_outputs/figures/figure_5_baseline_macro_f1.png",
+    "confusion": "research_package/generated_outputs/figures/figure_6_random_forest_confusion_matrix.png",
+    "architecture": "research_package/generated_outputs/figures/figure_7_system_architecture.png"
+  }
+}
