@@ -18,40 +18,78 @@ const EXAMPLES = {
   },
 };
 
-const PATTERNS = {
-  sql_injection: [/SELECT.*\+.*user/i, /execute\(.*\+/i, /f['"]SELECT/i, /query\s*=\s*["'`].*SELECT.*\+/i],
-  weak_crypto: [/hashlib\.md5/i, /hashlib\.sha1/i, /DES\.new/i, /MODE_ECB/i, /createHash\(["']md5["']\)/i, /MessageDigest\.getInstance\(["']MD5["']\)/i],
-  hardcoded_secret: [/password\s*=\s*['"].+['"]/i, /api_key\s*=/i, /API_KEY\s*=/i, /SECRET.*=/i, /token\s*=/i],
-};
+const SQL_INJECTION_PATTERNS = [
+  /\b(sql|query|stmt|statement|command)\s*=\s*f["'`][\s\S]*\b(select|insert|update|delete|drop|union)\b[\s\S]*\{[^}]+\}/i,
+  /\b(sql|query|stmt|statement|command)\s*=\s*["'`][\s\S]*\b(select|insert|update|delete|drop|union)\b[\s\S]*\+\s*[a-z_][\w.\[\]()'"-]*/i,
+  /\b(sql|query|stmt|statement|command)\s*=\s*["'`][\s\S]*\b(select|insert|update|delete|drop|union)\b[\s\S]*\.format\s*\(/i,
+  /\b(sql|query|stmt|statement|command)\s*=\s*["'`][\s\S]*\b(select|insert|update|delete|drop|union)\b[\s\S]*%\s*\(?\s*[a-z_]/i,
+  /(?:cursor\.)?execute\(\s*f["'`][\s\S]*\b(select|insert|update|delete|drop|union)\b[\s\S]*\{[^}]+\}/i,
+  /(?:cursor\.)?execute\(\s*["'`][\s\S]*\b(select|insert|update|delete|drop|union)\b[\s\S]*\+\s*[a-z_]/i,
+  /(?:cursor\.)?execute\(\s*["'`][\s\S]*\b(select|insert|update|delete|drop|union)\b[\s\S]*\.format\s*\(/i,
+  /db\.query\(\s*`[\s\S]*\b(select|insert|update|delete|drop|union)\b[\s\S]*\$\{[^}]+\}/i,
+  /statement\.executequery\(\s*["'`][\s\S]*\b(select|insert|update|delete|drop|union)\b[\s\S]*\+\s*[a-z_]/i,
+  /preparestatement\(\s*["'`][\s\S]*\b(select|insert|update|delete|drop|union)\b[\s\S]*\+\s*[a-z_]/i,
+];
+
+const HARDCODED_SECRET_PATTERNS = [
+  /\b(password|passwd|pwd|secret|api[_-]?key|apikey|token|access[_-]?token|refresh[_-]?token|client[_-]?secret|private[_-]?key|secret[_-]?key)\b\s*[:=]\s*["'][^"'\n]{4,}["']/i,
+  /\b(auth|authorization)\b\s*[:=]\s*["']bearer\s+[a-z0-9._-]+["']/i,
+  /-----begin (rsa |ec |openssh )?private key-----/i,
+  /\bAKIA[0-9A-Z]{16}\b/,
+  /\bxox[baprs]-[a-z0-9-]{10,}\b/i,
+  /mongodb(\+srv)?:\/\/[^:\s]+:[^@\s]+@/i,
+  /postgres(?:ql)?:\/\/[^:\s]+:[^@\s]+@/i,
+  /createclient\(\s*\{[\s\S]*apikey\s*:\s*["'][^"']+["']/i,
+];
+
+const WEAK_CRYPTO_PATTERNS = [
+  /hashlib\.md5/i,
+  /hashlib\.sha1/i,
+  /createHash\(["']md5["']\)/i,
+  /createHash\(["']sha1["']\)/i,
+  /MessageDigest\.getInstance\(["']MD5["']\)/i,
+  /MessageDigest\.getInstance\(["']SHA-?1["']\)/i,
+  /DES\.new/i,
+  /\b3DES\b/i,
+  /\bTripleDES\b/i,
+  /\bRC2\b/i,
+  /\bRC4\b/i,
+  /\bBlowfish\b/i,
+  /\bMODE_ECB\b/i,
+  /\bAES\/ECB\b/i,
+  /Cipher\.getInstance\(["'][^"']*ECB[^"']*["']\)/i,
+  /RSA\.generate\(\s*1024/i,
+  /\bkey_size\s*=\s*1024\b/i,
+];
 
 const META = {
-  sql_injection: {
-    severity: "CRITICAL",
-    color: "bg-red-100 text-red-800 border-red-200",
-    title: "SQL Injection Detected (CWE-089)",
-    detail: "String-built SQL introduces a direct injection path. Use parameterized queries or prepared statements instead.",
-    learn: "Learn about CWE-089 →",
-    remediation: `query = "SELECT * FROM users WHERE name = %s"\ncursor.execute(query, (username,))`,
-    riskyTokens: ["SELECT", "+", "execute", "query"],
-  },
+    sql_injection: {
+      severity: "CRITICAL",
+      color: "bg-red-100 text-red-800 border-red-200",
+      title: "SQL Injection Detected (CWE-089)",
+      detail: "The snippet builds a database query using interpolation, concatenation, or unsafe formatting. Use parameterized queries or prepared statements instead.",
+      learn: "Learn about CWE-089 →",
+      remediation: `query = "SELECT * FROM users WHERE name = %s"\ncursor.execute(query, (username,))`,
+      riskyTokens: ["SELECT", "+", "execute", "query"],
+    },
   weak_crypto: {
-    severity: "HIGH",
-    color: "bg-orange-100 text-orange-800 border-orange-200",
-    title: "Weak Crypto Detected (CWE-327)",
-    detail: "The snippet relies on a broken or risky cryptographic primitive or mode. Replace it with current, recommended algorithms.",
-    learn: "Learn about CWE-327 →",
-    remediation: `digest = hashlib.sha256(password.encode()).hexdigest()`,
-    riskyTokens: ["md5", "sha1", "DES", "ECB", "MD5"],
-  },
-  hardcoded_secret: {
-    severity: "HIGH",
-    color: "bg-amber-100 text-amber-800 border-amber-200",
-    title: "Hardcoded Secret Detected (CWE-798)",
-    detail: "Credential material appears directly in source code. Move secrets to environment variables or a secure secret manager.",
-    learn: "Learn about CWE-798 →",
-    remediation: `api_key = os.environ["SERVICE_API_KEY"]\nclient = SomeClient(api_key=api_key)`,
-    riskyTokens: ["password", "apiKey", "API_KEY", "SECRET", "token"],
-  },
+      severity: "HIGH",
+      color: "bg-orange-100 text-orange-800 border-orange-200",
+      title: "Weak Crypto Detected (CWE-327)",
+      detail: "The snippet relies on a broken or risky cryptographic algorithm, key size, or mode. Replace it with current, recommended algorithms.",
+      learn: "Learn about CWE-327 →",
+      remediation: `digest = hashlib.sha256(password.encode()).hexdigest()`,
+      riskyTokens: ["md5", "sha1", "DES", "ECB", "MD5", "RC4", "Blowfish"],
+    },
+    hardcoded_secret: {
+      severity: "HIGH",
+      color: "bg-amber-100 text-amber-800 border-amber-200",
+      title: "Hardcoded Secret Detected (CWE-798)",
+      detail: "Credential material appears directly in source code. Move passwords, tokens, API keys, and private keys to environment variables or a secure secret manager.",
+      learn: "Learn about CWE-798 →",
+      remediation: `api_key = os.environ["SERVICE_API_KEY"]\nclient = SomeClient(api_key=api_key)`,
+      riskyTokens: ["password", "apiKey", "API_KEY", "SECRET", "token", "private_key", "AKIA"],
+    },
   safe: {
     severity: "SAFE",
     color: "bg-emerald-100 text-emerald-800 border-emerald-200",
@@ -67,16 +105,37 @@ function randomConfidence(min, max) {
   return Number((Math.random() * (max - min) + min).toFixed(2));
 }
 
+function matchesAny(code, patterns) {
+  return patterns.some((pattern) => pattern.test(code));
+}
+
+function isSqlInjectionSnippet(code) {
+  return matchesAny(code, SQL_INJECTION_PATTERNS);
+}
+
 function analyzeSnippet(code) {
-  for (const [label, regexList] of Object.entries(PATTERNS)) {
-    const matched = regexList.find((pattern) => pattern.test(code));
-    if (matched) {
-      return {
-        label,
-        confidence: randomConfidence(0.72, 0.96),
-        ...META[label],
-      };
-    }
+  if (isSqlInjectionSnippet(code)) {
+    return {
+      label: "sql_injection",
+      confidence: randomConfidence(0.72, 0.96),
+      ...META.sql_injection,
+    };
+  }
+
+  if (matchesAny(code, WEAK_CRYPTO_PATTERNS)) {
+    return {
+      label: "weak_crypto",
+      confidence: randomConfidence(0.72, 0.96),
+      ...META.weak_crypto,
+    };
+  }
+
+  if (matchesAny(code, HARDCODED_SECRET_PATTERNS)) {
+    return {
+      label: "hardcoded_secret",
+      confidence: randomConfidence(0.72, 0.96),
+      ...META.hardcoded_secret,
+    };
   }
 
   return {

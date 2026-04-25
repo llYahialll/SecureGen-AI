@@ -836,26 +836,70 @@ cursor.execute(query)"></textarea>
       },
     };
 
+    const SQL_INJECTION_PATTERNS = [
+      /\b(sql|query|stmt|statement|command)\s*=\s*f["'`][\s\S]*\b(select|insert|update|delete|drop|union)\b[\s\S]*\{[^}]+\}/i,
+      /\b(sql|query|stmt|statement|command)\s*=\s*["'`][\s\S]*\b(select|insert|update|delete|drop|union)\b[\s\S]*\+\s*[a-z_][\w.\[\]()'"-]*/i,
+      /\b(sql|query|stmt|statement|command)\s*=\s*["'`][\s\S]*\b(select|insert|update|delete|drop|union)\b[\s\S]*\.format\s*\(/i,
+      /\b(sql|query|stmt|statement|command)\s*=\s*["'`][\s\S]*\b(select|insert|update|delete|drop|union)\b[\s\S]*%\s*\(?\s*[a-z_]/i,
+      /(?:cursor\.)?execute\(\s*f["'`][\s\S]*\b(select|insert|update|delete|drop|union)\b[\s\S]*\{[^}]+\}/i,
+      /(?:cursor\.)?execute\(\s*["'`][\s\S]*\b(select|insert|update|delete|drop|union)\b[\s\S]*\+\s*[a-z_]/i,
+      /(?:cursor\.)?execute\(\s*["'`][\s\S]*\b(select|insert|update|delete|drop|union)\b[\s\S]*\.format\s*\(/i,
+      /db\.query\(\s*`[\s\S]*\b(select|insert|update|delete|drop|union)\b[\s\S]*\$\{[^}]+\}/i,
+      /statement\.executequery\(\s*["'`][\s\S]*\b(select|insert|update|delete|drop|union)\b[\s\S]*\+\s*[a-z_]/i,
+      /preparestatement\(\s*["'`][\s\S]*\b(select|insert|update|delete|drop|union)\b[\s\S]*\+\s*[a-z_]/i
+    ];
+
+    const HARDCODED_SECRET_PATTERNS = [
+      /\b(password|passwd|pwd|secret|api[_-]?key|apikey|token|access[_-]?token|refresh[_-]?token|client[_-]?secret|private[_-]?key|secret[_-]?key)\b\s*[:=]\s*["'][^"'\n]{4,}["']/i,
+      /\b(auth|authorization)\b\s*[:=]\s*["']bearer\s+[a-z0-9._-]+["']/i,
+      /-----begin (rsa |ec |openssh )?private key-----/i,
+      /\bAKIA[0-9A-Z]{16}\b/,
+      /\bxox[baprs]-[a-z0-9-]{10,}\b/i,
+      /mongodb(\+srv)?:\/\/[^:\s]+:[^@\s]+@/i,
+      /postgres(?:ql)?:\/\/[^:\s]+:[^@\s]+@/i,
+      /createclient\(\s*\{[\s\S]*apikey\s*:\s*["'][^"']+["']/i
+    ];
+
+    const WEAK_CRYPTO_PATTERNS = [
+      /hashlib\.md5/i,
+      /hashlib\.sha1/i,
+      /createhash\(["']md5["']\)/i,
+      /createhash\(["']sha1["']\)/i,
+      /messagedigest\.getinstance\(["']md5["']\)/i,
+      /messagedigest\.getinstance\(["']sha-?1["']\)/i,
+      /des\.new/i,
+      /\b3des\b/i,
+      /\btripledes\b/i,
+      /\brc2\b/i,
+      /\brc4\b/i,
+      /\bblowfish\b/i,
+      /\bmode_ecb\b/i,
+      /\baes\/ecb\b/i,
+      /cipher\.getinstance\(["'][^"']*ecb[^"']*["']\)/i,
+      /rsa\.generate\(\s*1024/i,
+      /\bkey_size\s*=\s*1024\b/i
+    ];
+
     const RESULT_MAP = {
       weak_crypto: {
         badge: "HIGH",
         badgeClass: "high",
         title: "Weak Crypto Detected (CWE-327)",
-        description: "The snippet uses a broken or risky algorithm or mode. Replace weak primitives with modern, recommended cryptography choices.",
+        description: "The snippet uses a broken or risky cryptographic algorithm, key size, or mode. Replace weak primitives with modern, recommended cryptography choices.",
         fix: `digest = hashlib.sha256(password.encode()).hexdigest()`,
       },
       sql_injection: {
         badge: "CRITICAL",
         badgeClass: "critical",
         title: "SQL Injection Detected (CWE-089)",
-        description: "String concatenation is being used to build a database query. Parameterize user input instead of injecting raw values into SQL strings.",
+        description: "The snippet builds a database query using interpolation, concatenation, or unsafe formatting. Parameterize user input instead of injecting raw values into SQL strings.",
         fix: `query = "SELECT * FROM users WHERE name = %s"\ncursor.execute(query, (username,))`,
       },
       hardcoded_secret: {
         badge: "HIGH",
         badgeClass: "high",
         title: "Hardcoded Secret Detected (CWE-798)",
-        description: "The snippet contains a credential-like value directly in source code. Secrets should be loaded from environment variables or a vault.",
+        description: "The snippet contains a credential, token, key, or connection secret directly in source code. Secrets should be loaded from environment variables or a vault.",
         fix: `api_key = os.environ["SERVICE_API_KEY"]\nclient = SomeService(api_key=api_key)`,
       },
       secure: {
@@ -875,8 +919,12 @@ cursor.execute(query)"></textarea>
     const resultCard = document.getElementById("result-card");
     const resultBadge = document.getElementById("result-badge");
     const resultTitle = document.getElementById("result-title");
-    const resultDescription = document.getElementById("result-description");
-    const resultFix = document.getElementById("result-fix");
+      const resultDescription = document.getElementById("result-description");
+      const resultFix = document.getElementById("result-fix");
+
+    function matchesAny(code, patterns) {
+      return patterns.some((pattern) => pattern.test(code));
+    }
 
     tabButtons.forEach((button) => {
       button.addEventListener("click", () => {
@@ -888,15 +936,19 @@ cursor.execute(query)"></textarea>
       });
     });
 
+    function isSqlInjectionSnippet(code) {
+      return matchesAny(code, SQL_INJECTION_PATTERNS);
+    }
+
     function classifySnippet(snippet) {
       const code = snippet.toLowerCase();
-      if (/md5|sha1|des|ecb/.test(code)) {
+      if (matchesAny(code, WEAK_CRYPTO_PATTERNS)) {
         return "weak_crypto";
       }
-      if (/(select|insert|update|delete).*(\+|f["'])/.test(code) || /execute\s*\(.*\+/.test(code)) {
+      if (isSqlInjectionSnippet(code)) {
         return "sql_injection";
       }
-      if (/password\s*=\s*['"].+['"]|api_key\s*=|secret\s*=|token\s*=/.test(code)) {
+      if (matchesAny(code, HARDCODED_SECRET_PATTERNS)) {
         return "hardcoded_secret";
       }
       return "secure";
